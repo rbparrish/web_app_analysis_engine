@@ -2,7 +2,7 @@
 import pdb
 import sqlite3
 # Connect to approrpiate database
-connT = sqlite3.connect('training.db')
+connT = sqlite3.connect('tr2.db')
 cuT = connT.cursor()
 # import MATH.log to be used during analysis
 import math
@@ -16,7 +16,6 @@ def run_analysis(word_list):
 
 
 def table_create(word_list):
-
 	# Create table to put article words into
 	cuT.execute('''
 	    DROP TABLE newarticle
@@ -34,6 +33,7 @@ def table_create(word_list):
         	VALUES(?)'''
             	, (each,))
 
+
 	print "new table generated"
 
 
@@ -44,17 +44,17 @@ def execute():
         	l.label,
 	        (sum(l.loglike)+z.extr_count+log(p.clsprior)) as likely
 	    FROM
-	        log_likeval l
-    JOIN
+	        loglikeval l
+    	JOIN
 	        newarticle n ON n.word = l.word
 	    JOIN
 	        classprior p ON l.label = p.label
 	    JOIN
 	        (SELECT
 	            l.label AS label,
-	            (((SELECT count(*) FROM newarticle) - count(*))*(-10.5)) AS extr_count
- 	       FROM
- 	           log_likeval l
+	            (((SELECT count(*) FROM newarticle) - count(*))*(-12)) AS extr_count
+ 	        FROM
+ 	           loglikeval l
 	        JOIN
 	            newarticle n ON n.word = l.word
 	        GROUP BY
@@ -66,13 +66,16 @@ def execute():
 	        likely DESC
 	''')
 
-	#pdb.set_trace()
-
 	full_results = ans.fetchall()
-	print "analysis complete"
+	print str(full_results)
 
-	top_results = "Prediction results (top 3, in order of higest to lowest): "
+#### Organize and return results
+	top_results = "Results : "
 	for i in range(3):
 		top_results = top_results + (" " + str(i+1) + ": " + full_results[i][0] + ",")
 
-	return top_results
+	print "analysis complete"
+
+	full = top_results
+
+	return full
